@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/retailos -DapplyEvolutions.default=true
+web: -DapplyEvolutions.default=true
