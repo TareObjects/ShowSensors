@@ -1,0 +1,151 @@
+@(dummy: String)
+
+
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<style>
+.bar {
+	fill: steelblue;
+}
+
+.axis text {
+	font: 10px sans-serif;
+}
+
+.axis path,.axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.x.axis path {
+	display: none;
+}
+</style>
+<body>
+	<svg class="chart"></svg>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script type="text/javascript">
+
+var margin = {top: 20, right: 30, bottom: 50, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(48);            
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var chart = d3.select(".chart")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.json("http://localhost:9000/fetchFromHours", function(data) { 
+
+    /* Read CSV file: first row =>  time, count  */
+    var maxval = 0,
+        sampsize = 0;
+    var label_array = new Array(),
+        data1 = new Array();
+
+    sampsize = data.length;
+    
+    var ymdhmFormat = d3.time.format("%Y-%m-%d %H:%M");
+	var nDatas = 0;
+	// raw
+    for (var i=0; i < sampsize; i++) {
+       label_array[i] = ymdhmFormat.parse(data[i].strDate);
+       var c = data[i].pirCount;
+       var tStr = data[i].strDate.slice(11);
+       data1[nDatas++] = { time: tStr, count: c};
+     }
+	/*
+	//  average
+	var interval = 15;	
+	var sum = 0;
+    for (var i=0; i < sampsize; i++) {
+       label_array[i] = ymdhmFormat.parse(data[i].logDate);
+       var c = parseFloat(data[i].pirCount);
+       sum += c;
+       if ((i % interval) == interval-1) {
+       	   sum = sum / interval;
+           if (sum > maxval) maxval = sum;
+           var tStr = data[i-interval+1].logDate.slice(11);
+           // if (tStr.slice(3) != '00') tStr = ' '; 
+	       data1[nDatas++] = { time: tStr, count: sum};
+	       sum = 0;
+	   }
+     }
+     */
+    /* max
+	var interval = 15;	
+	var max = 0;
+    for (var i=0; i < sampsize; i++) {
+       label_array[i] = ymdhmFormat.parse(data[i].time);
+       var c = parseFloat(data[i].count);
+       if (c > max) max = c;
+       if ((i % interval) == interval-1) {
+           if (max > maxval) maxval = max;
+	       data1[nDatas++] = { time: data[i-interval+1].time.slice(11), count: max};
+	       max = 0;
+	   }
+     }
+	*/
+	
+	x.domain(data1.map(function(d) {return d.time;}));
+	y.domain([0, d3.max(data1, function(d) { return d.count; })]);
+
+  chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+      .selectAll("text")
+      .attr("x", -20)
+      .attr("y", -5)
+      .attr("transform", "rotate(-90)")
+
+
+  chart.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  chart.selectAll(".bar")
+      .data(data1)
+      .enter().append("rect")
+      //.attr("class", "bar")
+      .attr("fill", function(d) {
+      	  var col = "lightgray";
+      	  if (d.count >= 3) {
+      	  	col = "red";
+      	  } else if (d.count >= 0.5) {
+      	  	col = "green";
+      	  }
+      	  return col;
+      	})
+      .attr("x", function(d) { return x(d.time); })
+      .attr("y", function(d) { return y(d.count); })
+      .attr("height", function(d) { return height - y(d.count); })
+      .attr("width", x.rangeBand());
+});
+
+function type(d) {
+  d.count = +d.count; // coerce to number
+  return d;
+}
+
+</script>
+</body>
+</html>
