@@ -15,37 +15,33 @@ create table sensor_data (
   constraint pk_sensor_data primary key (id))
 ;
 
-create table user (
+create table users (
   id                        bigint not null,
   email                     varchar(255) not null,
   password                  varchar(255) not null,
   name                      varchar(255) not null,
   created_date              timestamp not null,
   updated_date              timestamp not null,
-  constraint uq_user_1 unique (email),
-  constraint pk_user primary key (id))
+  constraint uq_users_1 unique (email),
+  constraint pk_users primary key (id))
 ;
 
 create sequence sensor_data_seq;
 
-create sequence user_seq;
+create sequence users_seq;
 
-alter table sensor_data add constraint fk_sensor_data_dataOwner_1 foreign key (data_owner_id) references user (id) on delete restrict on update restrict;
+alter table sensor_data add constraint fk_sensor_data_dataOwner_1 foreign key (data_owner_id) references users (id);
 create index ix_sensor_data_dataOwner_1 on sensor_data (data_owner_id);
 
 
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+drop table if exists sensor_data cascade;
 
-drop table if exists sensor_data;
-
-drop table if exists user;
-
-SET REFERENTIAL_INTEGRITY TRUE;
+drop table if exists users cascade;
 
 drop sequence if exists sensor_data_seq;
 
-drop sequence if exists user_seq;
+drop sequence if exists users_seq;
 

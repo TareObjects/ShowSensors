@@ -15,7 +15,7 @@ import play.data.validation.*;
 
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name="UserConstraint", columnNames = { "email" }))
+@Table(name="users", uniqueConstraints = @UniqueConstraint(name="UserConstraint", columnNames = { "email" }))
 public class User extends Model {
 
 	@Id

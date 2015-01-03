@@ -26,16 +26,16 @@ public class Application extends Controller {
 	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 	/*
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:00", "count": "12", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:01", "count": "4", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:02", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:03", "count": "0", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:04", "count": "23", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:05", "count": "21", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:06", "count": "12", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:07", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:08", "count": "1", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-03 00:09", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:00", "count": "12", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:01", "count": "4", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:02", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:03", "count": "0", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:04", "count": "23", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:05", "count": "21", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:06", "count": "12", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:07", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:08", "count": "1", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:09", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
 */
 	public static Result receive() {
 		JsonNode json = request().body().asJson();
@@ -43,8 +43,13 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 			return badRequest("Expecting Json data");
 		} else {
 			String strDate = json.findPath("date").textValue();
-			Integer pirCount = Integer.valueOf(json.findPath("count").textValue());
+			System.out.println("[" + strDate + "]");
+//			String strCount = json.findPath("count").textValue();
+//			System.out.println("[" + strCount + "]");
+//			Integer pirCount = Integer.valueOf(strCount);
+			Integer pirCount = json.findPath("count").intValue();
 			String email = json.findPath("email").textValue();
+			System.out.println("[" + email + "]");
 			if (strDate == null || pirCount == null || email == null) {
 				return badRequest("Missing parameter");
 			} else {
