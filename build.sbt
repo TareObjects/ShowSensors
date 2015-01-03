@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.4.4"
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.4.4",
+  "postgresql" % "postgresql" % "9.1-901-1.jdbc4"
 )
