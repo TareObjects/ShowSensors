@@ -10,6 +10,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import play.*;
+import play.data.*;
+import static play.data.Form.*;
 import play.api.libs.json.*;
 import play.libs.Json;
 import play.mvc.*;
@@ -22,20 +24,20 @@ public class Application extends Controller {
 	public static Result index() {
 		return ok(index.render("Your new application is ready."));
 	}
-
+	
 	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 	/*
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:00", "count": "12", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:01", "count": "4", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:02", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:03", "count": "0", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:04", "count": "23", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:05", "count": "21", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:06", "count": "12", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:07", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:08", "count": "1", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-04 00:09", "count": "5", "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:30", "count": 12, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:31", "count":  4, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:32", "count":  4, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:33", "count":  0, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:34", "count": 23, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:35", "count": 21, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:36", "count": 12, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:37", "count":  5, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:38", "count":  1, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
+curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:39", "count":  1, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
 */
 	public static Result receive() {
 		JsonNode json = request().body().asJson();
@@ -115,6 +117,7 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 	
 
 	//curl --header "Content-type: application/json" --request POST --data '{"from": "2015-01-03 00:00", "hours": 12, "email": "kkurahashi@me.com"}' http://localhost:9000/fetchFromHours
+	@Security.Authenticated(Secured.class)
 	public static Result fetchFromHours() {
 		JsonNode json = request().body().asJson();
 		if (json == null) {
@@ -154,6 +157,7 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 	}
 	
 	// curl --header "Content-type: application/json" --request GET http://localhost:9000/fetchFromHours
+	@Security.Authenticated(Secured.class)
 	public static Result fetchFromHoursGet(String inEmail) {
 		User owner = User.findByEmail(inEmail);
 		System.out.println(inEmail);
@@ -178,8 +182,50 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 		return ok(Json.toJson(sdr));
 	}
 	
+	@Security.Authenticated(Secured.class)
 	public static Result graph() {
 		return ok(graph.render("dummy"));
+	}
+	
+	
+	
+	public static Result login() {
+        return ok(
+            login.render(form(Login.class))
+        );
+    }
+	
+	public static Result logout() {
+	    session().clear();
+	    flash("success", "You've been logged out");
+	    return redirect(
+	        routes.Application.login()
+	    );
+	}
+	
+	public static Result authenticate() {
+	    Form<Login> loginForm = form(Login.class).bindFromRequest();
+	    if (loginForm.hasErrors()) {
+	        return badRequest(login.render(loginForm));
+	    } else {
+	        session().clear();
+	        session("email", loginForm.get().email);
+	        return redirect(
+	            routes.Application.graph()
+	        );
+	    }
+	}	
+	public static class Login {
+
+	    public String email;
+	    public String password;
+
+	    public String validate() {
+	        if (User.authenticate(email, password) == null) {
+	          return "Invalid user or password";
+	        }
+	        return null;
+	    }
 	}
 	
 }
