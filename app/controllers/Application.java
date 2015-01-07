@@ -104,12 +104,13 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 				User user = User.findByEmail(strEmail);
 				if (user == null) {
 					user = new User(strEmail, strPassword, strName);
-				}
-				if (user != null) {
 					user.save();
-					return ok("received and saved.");
+					return ok("received and saved.\n");
 				} else {
-					return badRequest("could not create User");
+					user.password = strPassword;
+					user.name     = strName;
+					user.update();
+					return ok("received and updated.\n");
 				}
 			}
 		}
