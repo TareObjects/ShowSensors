@@ -1,5 +1,9 @@
 package models;
 
+//SensorDataRest.java
+//
+//SensorDataをJsonで返す際に使用するクラス
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

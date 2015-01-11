@@ -21,24 +21,53 @@ import models.*;
 
 public class Application extends Controller {
 
+    //  テンプレートについてる案内ページ。動作確認用に残している
 	public static Result index() {
 		return ok(index.render("Your new application is ready."));
 	}
 	
+	// BBB<->Play間で使う時刻形式。
 	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-	/*
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:30", "count": 12, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:31", "count":  4, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:32", "count":  4, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:33", "count":  0, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:34", "count": 23, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:35", "count": 21, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:36", "count": 12, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:37", "count":  5, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:38", "count":  1, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:39", "count":  1, "email": "kkurahashi@me.com"}' http://localhost:9000/receive
-*/
+	
+	// ユーザ登録 / 更新
+	// 対応Routes:
+	//     POST    /user/new                   controllers.Application.newUser()
+	// テスト用curl
+    //     curl --header "Content-type: application/json" --request POST --data '{"email": "mail@foo.com", "password": "secret", "name": "Koichi KURAHASHI"}' http://localhost:9000/user/new
+    public static Result newUser() {
+        JsonNode json = request().body().asJson();
+        if (json == null) {
+            return badRequest("Expecting Json data");
+        } else {
+            String strEmail    = json.findPath("email").textValue();
+            String strPassword = json.findPath("password").textValue();
+            String strName     = json.findPath("name").textValue();
+
+            if (strEmail == null || strPassword == null || strName == null) {
+                return badRequest("Missing parameter");
+            } else {
+                User user = User.findByEmail(strEmail);
+                if (user == null) {
+                    user = new User(strEmail, strPassword, strName);
+                    user.save();
+                    return ok("received and saved.\n");
+                } else {
+                    user.password = strPassword;
+                    user.name     = strName;
+                    user.update();
+                    return ok("received and updated.\n");
+                }
+            }
+        }
+    }
+    
+
+	// BBBからのJsonを受け取る
+	// 対応routes:
+	//     POST    /receive     controllers.Application.receive()
+	// テスト用curl:
+	//     curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:30", "count": 12, "email": "mail@foo.com"}' http://localhost:9000/receive
 	public static Result receive() {
 		JsonNode json = request().body().asJson();
 		if (json == null) {
@@ -46,9 +75,6 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 		} else {
 			String strDate = json.findPath("date").textValue();
 			System.out.println("[" + strDate + "]");
-//			String strCount = json.findPath("count").textValue();
-//			System.out.println("[" + strCount + "]");
-//			Integer pirCount = Integer.valueOf(strCount);
 			Integer pirCount = json.findPath("count").intValue();
 			String email = json.findPath("email").textValue();
 			System.out.println("[" + email + "]");
@@ -88,36 +114,12 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 		}
 	}
 	
-	// curl --header "Content-type: application/json" --request POST --data '{"email": "kkurahashi@me.com", "password": "secret", "name": "Koichi KURAHASHI"}' http://localhost:9000/user/new
-	public static Result newUser() {
-		JsonNode json = request().body().asJson();
-		if (json == null) {
-			return badRequest("Expecting Json data");
-		} else {
-			String strEmail    = json.findPath("email").textValue();
-			String strPassword = json.findPath("password").textValue();
-			String strName     = json.findPath("name").textValue();
+	// Jsonで指定されたユーザの指定時間分のデータを返す
+	// 対応Routes:
+	//     POST    /fetchFromHours     controllers.Application.fetchFromHours()
+	// テスト用curl:
+	//     curl --header "Content-type: application/json" --request POST --data '{"from": "2015-01-03 00:00", "hours": 12, "email": "mail@foo.com"}' http://localhost:9000/fetchFromHours
 
-			if (strEmail == null || strPassword == null || strName == null) {
-				return badRequest("Missing parameter");
-			} else {
-				User user = User.findByEmail(strEmail);
-				if (user == null) {
-					user = new User(strEmail, strPassword, strName);
-					user.save();
-					return ok("received and saved.\n");
-				} else {
-					user.password = strPassword;
-					user.name     = strName;
-					user.update();
-					return ok("received and updated.\n");
-				}
-			}
-		}
-	}
-	
-
-	//curl --header "Content-type: application/json" --request POST --data '{"from": "2015-01-03 00:00", "hours": 12, "email": "kkurahashi@me.com"}' http://localhost:9000/fetchFromHours
 	@Security.Authenticated(Secured.class)
 	public static Result fetchFromHours() {
 		JsonNode json = request().body().asJson();
@@ -156,8 +158,12 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 			return ok(Json.toJson(sdr));
 		}
 	}
-	
-	// curl --header "Content-type: application/json" --request GET http://localhost:9000/fetchFromHours
+
+    // 指定されたユーザの24時間分のデータを取得する
+    // 対応Routes:
+    //     GET     /fetchFromHours     controllers.Application.fetchFromHoursGet(email:String ?="foo@bar.com")
+    // テスト用curl:
+	//     curl --header "Content-type: application/json" --request GET http://localhost:9000/fetchFromHours
 	@Security.Authenticated(Secured.class)
 	public static Result fetchFromHoursGet(String inEmail) {
 		User owner = User.findByEmail(inEmail);
@@ -183,19 +189,27 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 		return ok(Json.toJson(sdr));
 	}
 	
+    // 認証付きグラフページを返す
+    // 対応Routes:
+	//     GET     /graph      controllers.Application.graph()	
 	@Security.Authenticated(Secured.class)
 	public static Result graph() {
 		return ok(graph.render("dummy"));
 	}
 	
 	
-	
+    // ログインページを返す
+    // 対応Routes:
+    //     GET      /login      controllers.Application.login()  
 	public static Result login() {
         return ok(
             login.render(form(Login.class))
         );
     }
 	
+    // ログアウトページを返す
+    // 対応Routes:
+    //     GET      /logout      controllers.Application.logout()  
 	public static Result logout() {
 	    session().clear();
 	    flash("success", "You've been logged out");
@@ -203,7 +217,10 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 	        routes.Application.login()
 	    );
 	}
-	
+
+	// email, password入力した後のpostを受けて認証を実行し結果を返す
+	// 対応Routes:
+	//     POST    /login      controllers.Application.authenticate()
 	public static Result authenticate() {
 	    Form<Login> loginForm = form(Login.class).bindFromRequest();
 	    if (loginForm.hasErrors()) {
@@ -215,7 +232,9 @@ curl --header "Content-type: application/json" --request POST --data '{"date": "
 	            routes.Application.graph()
 	        );
 	    }
-	}	
+	}
+	
+	// 認証フォームのためのクラス
 	public static class Login {
 
 	    public String email;

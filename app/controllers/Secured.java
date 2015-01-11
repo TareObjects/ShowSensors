@@ -1,5 +1,8 @@
 package controllers;
 
+//  認証関連、詳しくは以下リンクで
+//  https://www.playframework.com/documentation/ja/2.2.x/JavaGuide4
+
 import play.*;
 import play.mvc.*;
 import play.mvc.Http.*;
