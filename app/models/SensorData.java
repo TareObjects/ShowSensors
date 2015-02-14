@@ -33,6 +33,11 @@ public class SensorData extends Model {
 
     @NotNull
     public Integer pirCount;
+    
+    @NotNull
+    public Integer doorCount;
+    
+    public String otherInfo;
 
     //  many to oneはアクセサで書かないと正しいSQLが生成されない
     @NotNull
@@ -44,9 +49,11 @@ public class SensorData extends Model {
     @Version
     public Date updatedDate;
 
-    public SensorData(Date inDate, Integer inPirCount, User inUser) {
-        this.logDate = inDate;
-        this.pirCount = inPirCount;
+    public SensorData(Date inDate, Integer inPirCount, Integer inDoorCount, String inOtherInfo, User inUser) {
+        this.logDate   = inDate;
+        this.pirCount  = inPirCount;
+        this.doorCount = inDoorCount;
+        this.otherInfo = inOtherInfo;
         this.dataOwner = inUser;
 
         Calendar cal = Calendar.getInstance();

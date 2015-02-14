@@ -37,7 +37,7 @@ public class SensorDataTest extends WithApplication {
 		for (int i = 0; i < TEST_DATAS; i++) {
 			cal.set(2015,1,1,hour,minute + i,0);
 			cal.set(Calendar.MILLISECOND, 0);
-			SensorData sd = new SensorData(cal.getTime(), i * TEST_FACT, inOwner);
+			SensorData sd = new SensorData(cal.getTime(), i * TEST_FACT, (i % 5) == 0 ? TEST_FACT : 0, (i % 2) == 0 ? null : "", inOwner);
 			sd.save();
 		}
 	}
@@ -47,7 +47,7 @@ public class SensorDataTest extends WithApplication {
 		Calendar cal = Calendar.getInstance();		
 		cal.set(2015,1,1,hour,minute,0);
 		cal.set(Calendar.MILLISECOND, 0);
-		SensorData sd = new SensorData(cal.getTime(), 22, user);
+		SensorData sd = new SensorData(cal.getTime(), 22, 11, "", user);
 		sd.save();
 		
 		List<SensorData> sdFetch = SensorData.find.all();
@@ -74,12 +74,12 @@ public class SensorDataTest extends WithApplication {
 		Calendar cal = Calendar.getInstance();		
 		cal.set(2014,1,1,hour,minute,0);
 		cal.set(Calendar.MILLISECOND, 0);
-		SensorData sd = new SensorData(cal.getTime(), 22, user);
+		SensorData sd = new SensorData(cal.getTime(), 22, 11, "", user);
 		sd.save();
 		
 		cal.set(2015,1,1,hour,minute,0);
 		cal.set(Calendar.MILLISECOND, 0);
-		sd = new SensorData(cal.getTime(), 22, user1);
+		sd = new SensorData(cal.getTime(), 22, 11, "", user1);
 		sd.save();
 	}
 	

@@ -67,7 +67,7 @@ public class Application extends Controller {
 	// 対応routes:
 	//     POST    /receive     controllers.Application.receive()
 	// テスト用curl:
-	//     curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:30", "count": 12, "email": "mail@foo.com"}' http://localhost:9000/receive
+	//     curl --header "Content-type: application/json" --request POST --data '{"date": "2015-01-07 01:30", "count": 12, "outDoor" : 20, "otherInfo": "", "email": "mail@foo.com"}' http://localhost:9000/receive
 	public static Result receive() {
 		JsonNode json = request().body().asJson();
 		if (json == null) {
@@ -75,7 +75,9 @@ public class Application extends Controller {
 		} else {
 			String strDate = json.findPath("date").textValue();
 			System.out.println("[" + strDate + "]");
-			Integer pirCount = json.findPath("count").intValue();
+            Integer pirCount = json.findPath("count").intValue();
+            Integer doorCount = json.findPath("outDoor").intValue();
+            String otherInfo  = json.findPath("otherInfo").textValue();
 			String email = json.findPath("email").textValue();
 			System.out.println("[" + email + "]");
 			if (strDate == null || pirCount == null || email == null) {
@@ -103,7 +105,7 @@ public class Application extends Controller {
 						sd.pirCount = pirCount;
 						sd.update();
 					} else {
-						sd = new SensorData(date, pirCount, user);
+						sd = new SensorData(date, pirCount, doorCount, otherInfo, user);
 						sd.save();
 					}
 					return ok("received and saved.");
