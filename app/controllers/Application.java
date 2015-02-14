@@ -76,7 +76,7 @@ public class Application extends Controller {
 			String strDate = json.findPath("date").textValue();
 			System.out.println("[" + strDate + "]");
             Integer pirCount = json.findPath("count").intValue();
-            Integer doorCount = json.findPath("outDoor").intValue();
+            Integer doorCount = json.findPath("outdoor").intValue();
             String otherInfo  = json.findPath("otherInfo").textValue();
 			String email = json.findPath("email").textValue();
 			System.out.println("[" + email + "]");
